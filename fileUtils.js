@@ -7,7 +7,12 @@ function getFilesFromDirectory(directoryPath) {
 
   var idx = 1;
   files.forEach((file) => {
-    fileList.push({ id: idx, file });
+    // check if file is a video file
+    // file types: mp4, avi, mkv, mov, wmv, flv, webm, m4v
+    if (!file.match(/\.(mp4|avi|mkv|mov|wmv|flv|webm|m4v)$/i)) {
+      return;
+    }
+    fileList.push({ id: idx, name: file, file });
     idx++;
   });
 

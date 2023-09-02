@@ -1,11 +1,12 @@
-const fs = require('fs');
 const { exec } = require('child_process');
 const { getFilesFromDirectory } = require('./fileUtils');
 
+const directoryPath = process.env.directoryPath;
+const vlcCli = `vlc`
+var reservedSongs = [];
+
 // Function to reserve a song by ID
 function reserveSong(id) {
-  const directoryPath = process.env.directoryPath;
-
   // Get the list of files from the directory
   const files = getFilesFromDirectory(directoryPath);
 
@@ -19,18 +20,73 @@ function reserveSong(id) {
   }
 
   // Get the file name from the JSON data
-  const fileName = jsonData.file;
+  const song = jsonData;
 
-  // Execute the VLC command with the file path
-  const vlcCommand = `open -a /Applications/VLC.app/Contents/MacOS/VLC "${directoryPath}/${fileName}"`;
-  exec(vlcCommand, (error) => {
-    if (error) {
-      console.error(`Error opening file: ${error.message}`);
-    } else {
-      console.log(`VLC opened the file: ${fileName}`);
-    }
-  });
-  return fileName;
+  // queue the song
+  addToQueue(song);
+  return song.name;
 }
 
-module.exports = {reserveSong};
+function addToQueue(file) {
+  reservedSongs.push(file);
+  
+  if(reservedSongs.length == 1) {
+    playNext();
+  }
+}
+
+function playNext() {
+  if (reservedSongs.length == 0) {
+    return;
+  }
+  
+  const file = reservedSongs[0].file;
+  const vlcCommand = `${vlcCli} "${directoryPath}/${file}" --fullscreen vlc://quit`;
+  
+  executeCommand(vlcCommand)
+    .then(() => {
+      // Proceed to the next song in the queue
+      reservedSongs.shift();
+      playNext();
+    })
+    .catch((error) => {
+      console.error(`Error: ${error.message || error}`);
+    });
+}
+
+function executeCommand(command) {
+  return new Promise((resolve, reject) => {
+    exec(command, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+function skipSong() {
+  if (reservedSongs.length > 0) {
+    // Execute a command to skip to the next song in VLC
+    const skipCommand = `${vlcCli} --control next`;
+    executeCommand(skipCommand)
+      .then(() => {
+        // Proceed to the next song in the queue
+        reservedSongs.shift();
+        playNext();
+        console.log('Skipped to the next song');
+      })
+      .catch((error) => {
+        console.error(`Error: ${error.message || error}`);
+      });
+  } else {
+    console.log('No more songs to skip');
+  }
+}
+
+function reservedSongs() {
+  return reservedSongs;
+}
+
+module.exports = {reserveSong, reservedSongs, skipSong};
