@@ -1,5 +1,6 @@
 import KaraokeDataSource from "./data/dataSources/KaraokeDataSource";
 import { DefaultGetSongListUseCase } from "./domain/useCases/GetSongListUseCase";
+import { DefaultSynchronizeRecordsUseCase } from "./domain/useCases/SynchronizeRecordsUseCase";
 
 // Load environment variables
 const uri = process.env.MONGODB_URI;
@@ -10,3 +11,4 @@ if (!directoryPath) throw new Error('Missing directory path');
 const karaokeRepository = new KaraokeDataSource(uri, directoryPath);
 
 export const getSongListUseCase = new DefaultGetSongListUseCase(karaokeRepository);
+export const synchronizeRecordsUseCase = new DefaultSynchronizeRecordsUseCase(karaokeRepository);

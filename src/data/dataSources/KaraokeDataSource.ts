@@ -39,4 +39,27 @@ export default class KaraokeDataSource implements KaraokeRepository {
     });
     return Promise.resolve(videoFiles);
   }
+  
+  /*
+
+const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
+  title: { type: String, required: true },
+  artist: { type: String, required: false },
+  image: { type: String, required: false },
+  file: { type: String, required: true },
+}, {
+  */
+  async createSongsFromFiles(files: string[]): Promise<SongRecord[]> {
+    await this.initializeClient();
+    const songs = files.map((file) => {
+      return new MongooseSongRecord({
+        title: file,
+        artist: undefined,
+        image: undefined,
+        file: file,
+      });
+    });
+    const result = await MongooseSongRecord.insertMany(songs);
+    return result;
+  }
 }

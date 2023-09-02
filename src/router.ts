@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import GenericResponse from './common/GenericResponse';
-import { getSongListUseCase } from './dependencies';
+import { getSongListUseCase, synchronizeRecordsUseCase } from './dependencies';
 
 const router = express.Router();
 
@@ -12,6 +12,12 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/songs', async (req: Request, res: Response) => {
   var songs = await getSongListUseCase.execute();
   var response = GenericResponse.success(songs);
+  res.send(response);
+})
+
+router.post('/sync', async (req: Request, res: Response) => {
+  await synchronizeRecordsUseCase.execute();
+  var response = GenericResponse.success('Records synchronized!');
   res.send(response);
 })
 
