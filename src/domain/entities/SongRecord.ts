@@ -1,6 +1,7 @@
 import Song from "./Song";
 
 export default interface SongRecord extends Song {
+  openAIUpdated: boolean;
   justSong(): Song;
 }
 
@@ -15,7 +16,6 @@ export function justSong(songRecord: SongRecord): Song {
     language: songRecord.language,
     localizations: songRecord.localizations,
     file: songRecord.file,
-    openAIUpdated: songRecord.openAIUpdated,
   };
   return song;
 }

@@ -10,5 +10,4 @@ export default interface Song {
   language: string | undefined;
   localizations: Localization[];
   file: string;
-  openAIUpdated: boolean;
 }
