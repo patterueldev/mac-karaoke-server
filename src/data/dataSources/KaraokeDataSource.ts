@@ -4,7 +4,10 @@ import SongRecord from "../../domain/entities/SongRecord";
 import KaraokeRepository from "../repositories/KaraokeRepository";
 import fs from 'fs';
 import { MongooseSongRecord } from "../../domain/entities/mongodb/MongooseSongRecord";
-import KaraokeManager from "../../common/KaraokeManager";
+import KaraokeManager, { KaraokeDelegate } from "../../common/KaraokeManager";
+import { MongooseReservedSongRecord } from "../../domain/entities/mongodb/MongooseReservedSongRecord";
+import ReservedSong from "../../domain/entities/ReservedSong";
+import ReservedSongRecord from "../../domain/entities/ReservedSongRecord";
 
 export default class KaraokeDataSource implements KaraokeRepository {
   private uri: string;
@@ -15,6 +18,7 @@ export default class KaraokeDataSource implements KaraokeRepository {
   constructor(uri: string, directoryPath: string, manager: KaraokeManager) {
     this.uri = uri;
     this.directoryPath = directoryPath;
+    manager.delegate = this;
     this.manager = manager;
   }
 
@@ -64,11 +68,41 @@ export default class KaraokeDataSource implements KaraokeRepository {
     return record;
   }
 
-  addToQueue(record: SongRecord): void {
-    this.manager.addToQueue(record);
+  async reserveSong(record: SongRecord): Promise<void> {
+    await this.initializeClient();
+    const songRecord = await MongooseSongRecord.findOne({ _id: record.identifier });
+    const reserved = new MongooseReservedSongRecord({
+      songRecord: songRecord,
+    });
+    await reserved.save();
+    var reservedSongs = await this.getReservedSongRecords();
+    if(reservedSongs.length == 1) {
+      await this.manager.playNext();
+    }
   }
 
-  getQueue(): SongRecord[] {
-    return this.manager.getQueue();
+  async getQueue(): Promise<ReservedSong[]> {
+    var records = await this.getReservedSongRecords();
+    return records.map((record) => {
+      return record.justReservedSong();
+    });
   }
+
+  async getReservedSongRecords(): Promise<ReservedSongRecord[]> {
+    await this.initializeClient();
+    const reserved = await MongooseReservedSongRecord.find().populate('songRecord');
+    return reserved;
+  }
+  
+  async resumeQueue(): Promise<void> {
+    this.manager.playNext();
+  }
+
+  // KaraokeDelegate methods
+  async shiftReservedSongs(): Promise<void> {
+    await this.initializeClient();
+    const reserved = await MongooseReservedSongRecord.findOne();
+    if (!reserved) return;
+    await reserved.deleteOne();
+  } 
 }

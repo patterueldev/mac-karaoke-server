@@ -5,13 +5,6 @@ interface MongooseSongRecordModel extends SongRecord, Document {
   
 }
 
-/*
-  identifier: string;
-  title: string;
-  artist: string | undefined;
-  image: string | undefined;
-  file: string;
-*/
 const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
   title: { type: String, required: true },
   artist: { type: String, required: false },

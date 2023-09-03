@@ -1,9 +1,23 @@
+import { Mongoose } from "mongoose";
+import ReservedSong from "../domain/entities/ReservedSong";
+import ReservedSongRecord from "../domain/entities/ReservedSongRecord";
 import SongRecord from "../domain/entities/SongRecord";
 import { exec } from "child_process";
 
-export default class KaraokeManager {
-  private reservedSongs: SongRecord[] = [];
+export default interface KaraokeManager {
+  delegate: KaraokeDelegate | undefined;
+  playNext(): Promise<void>;
+}
 
+export interface KaraokeDelegate {
+  getReservedSongRecords(): Promise<ReservedSongRecord[]>;
+  shiftReservedSongs(): Promise<void>;
+}
+
+
+export class DefaultKaraokeManager implements KaraokeManager {
+  delegate: KaraokeDelegate | undefined;
+  
   private directoryPath: string;
   private vlcCli: string;
 
@@ -12,28 +26,19 @@ export default class KaraokeManager {
     this.vlcCli = vlcCli;
   }
 
-  // Exposed methods
-  async addToQueue(song: SongRecord) {
-    this.reservedSongs.push(song);
-    
-    if(this.reservedSongs.length == 1) {
-      await this.playNext();
-    }
-  }
-
-  getQueue(): SongRecord[] { return this.reservedSongs; }
-
   // Private methods
-  private async playNext() {
-    if (this.reservedSongs.length == 0) {
+  async playNext(): Promise<void> {
+    const reservedSongs = await this.delegate?.getReservedSongRecords() ?? [];
+    if (reservedSongs.length == 0) {
       return;
     }
     
-    const file = this.reservedSongs[0].file;
+    const songRecord = reservedSongs[0].songRecord;
+    const file = songRecord.file;
     const vlcCommand = `${this.vlcCli} "${this.directoryPath}/${file}" --fullscreen vlc://quit`;
     
     await this.executeCommand(vlcCommand)
-    this.reservedSongs.shift();
+    await this.delegate?.shiftReservedSongs();
     await this.playNext();
   }
 

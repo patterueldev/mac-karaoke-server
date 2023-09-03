@@ -14,7 +14,7 @@ export class DefaultReserveSongUseCase implements ReserveSongUseCase {
     // return this.repository.reserveSong(identifier);
 
     const record = await this.repository.getSongRecord(identifier);
-    this.repository.addToQueue(record);
+    this.repository.reserveSong(record);
     return record;
   }
 }

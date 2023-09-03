@@ -1,8 +1,9 @@
 import KaraokeRepository from "../../data/repositories/KaraokeRepository";
+import ReservedSong from "../entities/ReservedSong";
 import Song from "../entities/Song";
 
 export default interface GetReservedSongListUseCase {
-  execute(): Promise<Song[]>;
+  execute(): Promise<ReservedSong[]>;
 }
 
 export class DefaultGetReservedSongListUseCase implements GetReservedSongListUseCase {
@@ -12,7 +13,7 @@ export class DefaultGetReservedSongListUseCase implements GetReservedSongListUse
     this.repository = repository;
   }
 
-  async execute(): Promise<Song[]> {
+  async execute(): Promise<ReservedSong[]> {
     return this.repository.getQueue();
   }
 }
