@@ -13,8 +13,10 @@ class GenericResponse {
         return new GenericResponse(data, 'OK', 200);
     }
 
-    static error(message: string) {
-        return new GenericResponse(null, message, 500);
+    static failure(error: any, code?: number) {
+        const message = error.message || error;
+        var status = code || 500;
+        return new GenericResponse(null, message, status);
     }
 }
 

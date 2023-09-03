@@ -4,15 +4,18 @@ import SongRecord from "../../domain/entities/SongRecord";
 import KaraokeRepository from "../repositories/KaraokeRepository";
 import fs from 'fs';
 import { MongooseSongRecord } from "../../domain/entities/mongodb/MongooseSongRecord";
+import KaraokeManager from "../../common/KaraokeManager";
 
 export default class KaraokeDataSource implements KaraokeRepository {
   private uri: string;
   private client: typeof mongoose | undefined;
+  private manager: KaraokeManager;
   
   directoryPath: string;
-  constructor(uri: string, directoryPath: string) {
+  constructor(uri: string, directoryPath: string, manager: KaraokeManager) {
     this.uri = uri;
     this.directoryPath = directoryPath;
+    this.manager = manager;
   }
 
   private async initializeClient(): Promise<typeof mongoose> {
@@ -40,16 +43,7 @@ export default class KaraokeDataSource implements KaraokeRepository {
     return Promise.resolve(videoFiles);
   }
   
-  /*
-
-const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
-  title: { type: String, required: true },
-  artist: { type: String, required: false },
-  image: { type: String, required: false },
-  file: { type: String, required: true },
-}, {
-  */
-  async createSongsFromFiles(files: string[]): Promise<SongRecord[]> {
+  async createSongsFromFiles(files: string[]): Promise<Song[]> {
     await this.initializeClient();
     const songs = files.map((file) => {
       return new MongooseSongRecord({
@@ -61,5 +55,16 @@ const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
     });
     const result = await MongooseSongRecord.insertMany(songs);
     return result;
+  }
+
+  async getSongRecord(identifier: string): Promise<SongRecord> {
+    await this.initializeClient();
+    const record = await MongooseSongRecord.findOne({ _id: identifier });
+    if (!record) return Promise.reject(`Song with id: ${identifier} not found!`);
+    return record;
+  }
+
+  addToQueue(record: SongRecord): void {
+    this.manager?.addToQueue(record);
   }
 }

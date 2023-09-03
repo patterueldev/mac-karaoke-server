@@ -30,7 +30,9 @@ export class DefaultGetSongListUseCase implements GetSongListUseCase {
         title: record.title,
         artist: record.artist,
         image: record.image,
-        identifier: record.identifier
+        identifier: record.identifier,
+        containsLyrics: record.containsLyrics,
+        containsVoice: record.containsVoice
       }
     });
     return songs;

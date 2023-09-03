@@ -1,6 +1,8 @@
+import KaraokeManager from "./common/KaraokeManager";
 import KaraokeDataSource from "./data/dataSources/KaraokeDataSource";
-import { DefaultGetSongListUseCase } from "./domain/useCases/GetSongListUseCase";
-import { DefaultSynchronizeRecordsUseCase } from "./domain/useCases/SynchronizeRecordsUseCase";
+import GetSongListUseCase, { DefaultGetSongListUseCase } from "./domain/useCases/GetSongListUseCase";
+import ReserveSongUseCase, { DefaultReserveSongUseCase } from "./domain/useCases/ReserveSongUseCase";
+import SynchronizeRecordsUseCase, { DefaultSynchronizeRecordsUseCase } from "./domain/useCases/SynchronizeRecordsUseCase";
 
 // Load environment variables
 const uri = process.env.MONGODB_URI;
@@ -8,7 +10,9 @@ if (!uri) throw new Error('Missing mongodb uri');
 const directoryPath = process.env.DIRECTORY_PATH;
 if (!directoryPath) throw new Error('Missing directory path');
 
-const karaokeRepository = new KaraokeDataSource(uri, directoryPath);
+const karaokeManager = new KaraokeManager(directoryPath);
+const karaokeRepository = new KaraokeDataSource(uri, directoryPath, karaokeManager);
 
-export const getSongListUseCase = new DefaultGetSongListUseCase(karaokeRepository);
-export const synchronizeRecordsUseCase = new DefaultSynchronizeRecordsUseCase(karaokeRepository);
+export const getSongListUseCase: GetSongListUseCase = new DefaultGetSongListUseCase(karaokeRepository);
+export const synchronizeRecordsUseCase: SynchronizeRecordsUseCase = new DefaultSynchronizeRecordsUseCase(karaokeRepository);
+export const reserveSongUseCase: ReserveSongUseCase = new DefaultReserveSongUseCase(karaokeRepository);

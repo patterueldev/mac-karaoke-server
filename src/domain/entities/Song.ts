@@ -3,4 +3,6 @@ export default interface Song {
   title: string;
   artist: string | undefined;
   image: string | undefined;
+  containsLyrics: boolean;
+  containsVoice: boolean;
 }

@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import GenericResponse from './common/GenericResponse';
-import { getSongListUseCase, synchronizeRecordsUseCase } from './dependencies';
+import { getSongListUseCase, reserveSongUseCase, synchronizeRecordsUseCase } from './dependencies';
 
 const router = express.Router();
 
@@ -21,34 +21,17 @@ router.post('/sync', async (req: Request, res: Response) => {
   res.send(response);
 })
 
-// const { getFilesFromDirectory } = require('./fileUtils');
-// const { reserveSong, reservedSongs, skipSong } = require('./karaoke');
-
-// // Usage example
-// const directoryPath = process.env.directoryPath;
-// const filesArray = getFilesFromDirectory(directoryPath);
-
-// // Routes
-// // convert to typescript
-
-
-// app.get('/test', (req: Request, res: Response) => {
-//   res.send('Hello, world!');
-// });
-// app.get('/', (req, res) => {
-//   res.send('Hello, world!');
-// });
-
-// app.get('/songs', (req, res) => {
-//   res.send(filesArray);
-// });
-
-
-// app.post('/reserve', (req, res) => {
-//   console.log(reserveSong);
-//   var file = reserveSong(req.body.id);
-//   res.send('Song reserved! Title: ' + file);
-// });
+router.post('/reserve', async (req: Request, res: Response) => {
+  var response: GenericResponse;
+  try {
+    var song = await reserveSongUseCase.execute(req.body.id);
+    var message = `Song reserved! Title: ${song.title}`;
+    response = GenericResponse.success(message);
+  } catch (error) {
+    response = GenericResponse.failure(error);
+  }
+  res.send(response);
+});
 
 // app.get('/reserved', (req, res) => {
 //   res.send(reservedSongs);
