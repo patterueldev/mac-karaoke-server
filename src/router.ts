@@ -44,8 +44,6 @@ router.get('/qr', async (req: Request, res: Response) => {
   // this is actually a base64 image, so we can return a <img> tag
   var html = `<img src="${qr}">`;
   res.send(html);
-  // var response = GenericResponse.success(qr);
-  // res.send(response);
 });
 // app.post('/skip', (req, res) => {
 //   res.send(skipSong());
