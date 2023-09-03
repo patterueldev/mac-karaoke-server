@@ -12,6 +12,7 @@ export default class KaraokeManager {
     this.vlcCli = vlcCli;
   }
 
+  // Exposed methods
   async addToQueue(song: SongRecord) {
     this.reservedSongs.push(song);
     
@@ -20,6 +21,9 @@ export default class KaraokeManager {
     }
   }
 
+  getQueue(): SongRecord[] { return this.reservedSongs; }
+
+  // Private methods
   private async playNext() {
     if (this.reservedSongs.length == 0) {
       return;

@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import GenericResponse from './common/GenericResponse';
-import { getSongListUseCase, reserveSongUseCase, synchronizeRecordsUseCase } from './dependencies';
+import { getReservedSongListUseCase, getSongListUseCase, reserveSongUseCase, synchronizeRecordsUseCase } from './dependencies';
 
 const router = express.Router();
 
@@ -33,9 +33,11 @@ router.post('/reserve', async (req: Request, res: Response) => {
   res.send(response);
 });
 
-// app.get('/reserved', (req, res) => {
-//   res.send(reservedSongs);
-// });
+router.get('/reserved', async (req: Request, res: Response) => {
+  var songs = await getReservedSongListUseCase.execute();
+  var response = GenericResponse.success(songs);
+  res.send(response);
+});
 
 // app.post('/skip', (req, res) => {
 //   res.send(skipSong());

@@ -7,4 +7,5 @@ export default interface KaraokeRepository {
   createSongsFromFiles(files: string[]): Promise<Song[]>;
   getSongRecord(identifier: string): Promise<SongRecord>;
   addToQueue(record: SongRecord): void;
+  getQueue(): SongRecord[];
 }

@@ -1,4 +1,4 @@
-import SongRecord from "../SongRecord";
+import SongRecord, { justSong } from "../SongRecord";
 import mongoose, { Document, Schema } from "mongoose";
 
 interface MongooseSongRecordModel extends SongRecord, Document {
@@ -27,5 +27,8 @@ const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
 mongooseSongRecordSchema.virtual("identifier").get(function(this: MongooseSongRecordModel) {
   return this._id.toString();
 });
+mongooseSongRecordSchema.methods.justSong = function(this: MongooseSongRecordModel) {
+  return justSong(this);
+}
 
 export const MongooseSongRecord = mongoose.model<MongooseSongRecordModel>("song", mongooseSongRecordSchema);

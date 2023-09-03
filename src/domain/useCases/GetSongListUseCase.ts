@@ -25,15 +25,7 @@ export class DefaultGetSongListUseCase implements GetSongListUseCase {
 
     // discard the unnecessary properties that are not in the Song interface
     var songs = filtered.map((record) => {
-      // return new Song(record.title, record.artist, record.image, record.file);
-      return {
-        title: record.title,
-        artist: record.artist,
-        image: record.image,
-        identifier: record.identifier,
-        containsLyrics: record.containsLyrics,
-        containsVoice: record.containsVoice
-      }
+      return record.justSong();
     });
     return songs;
   }

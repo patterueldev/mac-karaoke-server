@@ -65,6 +65,10 @@ export default class KaraokeDataSource implements KaraokeRepository {
   }
 
   addToQueue(record: SongRecord): void {
-    this.manager?.addToQueue(record);
+    this.manager.addToQueue(record);
+  }
+
+  getQueue(): SongRecord[] {
+    return this.manager.getQueue();
   }
 }
