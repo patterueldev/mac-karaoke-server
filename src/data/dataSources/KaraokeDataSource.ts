@@ -10,7 +10,7 @@ import ReservedSong from "../../domain/entities/ReservedSong";
 import ReservedSongRecord from "../../domain/entities/ReservedSongRecord";
 import OpenAI from "openai";
 
-export default class KaraokeDataSource implements KaraokeRepository {
+export default class KaraokeDataSource implements KaraokeRepository, KaraokeDelegate {
   private uri: string;
   private client: typeof mongoose | undefined;
   private manager: KaraokeManager;
@@ -45,7 +45,9 @@ export default class KaraokeDataSource implements KaraokeRepository {
         { 'localizations.text': { $regex: filter, $options: 'i' } },
       ];
     }
-    return await MongooseSongRecord.find(filterQuery).limit(limit);
+    return await MongooseSongRecord.find(filterQuery)
+      .sort({ title: 1 })
+      .limit(limit);
   }
   
   getSongFiles(): Promise<string[]> {
@@ -111,20 +113,6 @@ export default class KaraokeDataSource implements KaraokeRepository {
     this.manager.playNext();
   }
 
-  // KaraokeDelegate methods
-  async shiftReservedSongs(): Promise<void> {
-    await this.initializeClient();
-    const reserved = await MongooseReservedSongRecord.findOne();
-    if (!reserved) return;
-    await reserved.deleteOne();
-  } 
-
-  async getUnupdatedSongRecords(limit: number): Promise<SongRecord[]> {
-    await this.initializeClient();
-    // fetch first 10 songs that are not updated
-    return await MongooseSongRecord.find({ openAIUpdated: false }).limit(limit);
-  }
-
   async autoUpdateMetadataForSongs(filenames: string[], systemPrompt: string): Promise<Song[]> {
     await this.initializeClient();
     // const filenames = records.map((record) => { return record.file; });
@@ -170,5 +158,27 @@ export default class KaraokeDataSource implements KaraokeRepository {
       updatedRecords.push(songRecord);
     }
     return updatedRecords.map((record) => { return record.justSong(); });
+  }
+
+  // KaraokeDelegate methods
+  async shiftReservedSongs(): Promise<void> {
+    await this.initializeClient();
+    const reserved = await MongooseReservedSongRecord.findOne();
+    if (!reserved) return;
+    await reserved.deleteOne();
+  } 
+
+  async getUnupdatedSongRecords(limit: number): Promise<SongRecord[]> {
+    await this.initializeClient();
+    // fetch first 10 songs that are not updated
+    return await MongooseSongRecord.find({ openAIUpdated: false }).limit(limit);
+  }
+
+  async markedAsPlaying(reserved: ReservedSongRecord): Promise<void> {
+    await this.initializeClient();
+    const record = await MongooseReservedSongRecord.findOne({ _id: reserved.identifier });
+    if (!record) return;
+    record.currentlyPlaying = true;
+    await record.save();
   }
 }

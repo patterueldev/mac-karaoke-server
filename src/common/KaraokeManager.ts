@@ -11,6 +11,7 @@ export default interface KaraokeManager {
 
 export interface KaraokeDelegate {
   getReservedSongRecords(): Promise<ReservedSongRecord[]>;
+  markedAsPlaying(reserved: ReservedSongRecord): Promise<void>;
   shiftReservedSongs(): Promise<void>;
 }
 
@@ -37,6 +38,7 @@ export class DefaultKaraokeManager implements KaraokeManager {
     const file = songRecord.file;
     const vlcCommand = `${this.vlcCli} "${this.directoryPath}/${file}" --fullscreen vlc://quit`;
     
+    await this.delegate?.markedAsPlaying(reservedSongs[0]);
     await this.executeCommand(vlcCommand)
     await this.delegate?.shiftReservedSongs();
     await this.playNext();

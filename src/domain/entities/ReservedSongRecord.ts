@@ -8,6 +8,7 @@ export default interface ReservedSongRecord extends ReservedSong {
 
 export function justReservedSong(reservedSongRecord: ReservedSongRecord): ReservedSong {
   const reservedSong: ReservedSong = {
+    currentlyPlaying: reservedSongRecord.currentlyPlaying,
     identifier: reservedSongRecord.identifier,
     song: reservedSongRecord.song,
   };
