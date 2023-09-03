@@ -36,18 +36,16 @@ export default class KaraokeDataSource implements KaraokeRepository {
     await this.initializeClient();
     // const songs = await MongooseSongRecord.find();
     if (!limit) limit = 0;
-    var songs = await MongooseSongRecord.find().limit(limit);
+    var filterQuery: mongoose.FilterQuery<any> = {};
     if (filter) {
-      songs = songs.filter((song) => {
-        return song.title.toLowerCase().includes(filter.toLowerCase()) || 
-          song.artist?.toLowerCase().includes(filter.toLowerCase()) ||
-          song.localizations?.some((localization) => {
-              return localization.text.toLowerCase().includes(filter.toLowerCase())
-          }) ||
-          song.file.toLowerCase().includes(filter.toLowerCase());
-      });
+      filterQuery.$or = [
+        { title: { $regex: filter, $options: 'i' } },
+        { artist: { $regex: filter, $options: 'i' } },
+        { file: { $regex: filter, $options: 'i' } },
+        { 'localizations.text': { $regex: filter, $options: 'i' } },
+      ];
     }
-    return songs;
+    return await MongooseSongRecord.find(filterQuery).limit(limit);
   }
   
   getSongFiles(): Promise<string[]> {

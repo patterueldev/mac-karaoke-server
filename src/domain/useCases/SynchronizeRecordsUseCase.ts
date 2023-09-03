@@ -14,10 +14,8 @@ export class DefaultSynchronizeRecordsUseCase implements SynchronizeRecordsUseCa
   async execute(): Promise<void> {
     // first, get the list of files
     var files = await this.repository.getSongFiles();
-
     // then, get the list of records
     var records = await this.repository.getSongRecords();
-
     // most likely the records' file property will be unique
     // so, let's filter the files that are still not in the records
     var filesToRecord = files.filter((file) => {
