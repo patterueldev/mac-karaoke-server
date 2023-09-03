@@ -1,5 +1,6 @@
 import KaraokeManager, { DefaultKaraokeManager } from "./common/KaraokeManager";
 import KaraokeDataSource from "./data/dataSources/KaraokeDataSource";
+import GenerateServerQRUseCase, { DefaultGenerateServerQRUseCase } from "./domain/useCases/GenerateServerQRUseCase";
 import GetReservedSongListUseCase, { DefaultGetReservedSongListUseCase } from "./domain/useCases/GetReservedSongListUseCase";
 import GetSongListUseCase, { DefaultGetSongListUseCase } from "./domain/useCases/GetSongListUseCase";
 import ReserveSongUseCase, { DefaultReserveSongUseCase } from "./domain/useCases/ReserveSongUseCase";
@@ -23,3 +24,4 @@ export const synchronizeRecordsUseCase: SynchronizeRecordsUseCase = new DefaultS
 export const reserveSongUseCase: ReserveSongUseCase = new DefaultReserveSongUseCase(karaokeRepository);
 export const getReservedSongListUseCase: GetReservedSongListUseCase = new DefaultGetReservedSongListUseCase(karaokeRepository);
 export const restoreReservedSongsUseCase: RestoreReservedSongsUseCase = new DefaultRestoreReservedSongsUseCase(karaokeRepository);
+export const generateServerQRUseCase: GenerateServerQRUseCase = new DefaultGenerateServerQRUseCase();
