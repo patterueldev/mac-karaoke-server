@@ -1,9 +1,14 @@
+import { MongooseLocalization } from './MongooseLocalization';
 import SongRecord, { justSong } from "../SongRecord";
 import mongoose, { Document, Schema } from "mongoose";
+import Localization from '../Localization';
 
 interface MongooseSongRecordModel extends SongRecord, Document {
-  
+  openAIUpdated: boolean;
+  language: string | undefined;
+  localizations: Localization[];
 }
+
 
 const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
   title: { type: String, required: true },
@@ -12,6 +17,9 @@ const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
   file: { type: String, required: true },
   containsLyrics: { type: Boolean, required: true, default: true },
   containsVoice: { type: Boolean, required: true, default: false },
+  openAIUpdated: { type: Boolean, required: true, default: false },
+  language: { type: String, required: false },
+  localizations: { type: [MongooseLocalization.schema], required: true, default: [] },
 }, {
   toJSON: { getters: true },
   id: false,

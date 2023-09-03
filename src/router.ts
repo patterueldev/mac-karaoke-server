@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import GenericResponse from './common/GenericResponse';
-import { generateServerQRUseCase, getReservedSongListUseCase, getSongListUseCase, reserveSongUseCase, synchronizeRecordsUseCase } from './dependencies';
+import { autoUpdateSongsUseCase, generateServerQRUseCase, getReservedSongListUseCase, getSongListUseCase, reserveSongUseCase, synchronizeRecordsUseCase } from './dependencies';
 
 const router = express.Router();
 
@@ -10,7 +10,9 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/songs', async (req: Request, res: Response) => {
-  var songs = await getSongListUseCase.execute();
+  var limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+  var filter = req.query.filter ? req.query.filter as string : undefined;
+  var songs = await getSongListUseCase.execute(limit, filter);
   var response = GenericResponse.success(songs);
   res.send(response);
 })
@@ -45,6 +47,13 @@ router.get('/qr', async (req: Request, res: Response) => {
   var html = `<img src="${qr}">`;
   res.send(html);
 });
+
+router.post('/autoupdate', async (req: Request, res: Response) => {
+  const limit = req.body.limit || 5;
+  var result = await autoUpdateSongsUseCase.execute(limit);
+  var response = GenericResponse.success(result, 'Songs updated!');
+  res.send(response);
+})
 // app.post('/skip', (req, res) => {
 //   res.send(skipSong());
 // });

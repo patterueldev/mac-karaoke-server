@@ -2,7 +2,7 @@ import KaraokeRepository from "../../data/repositories/KaraokeRepository";
 import Song from "../entities/Song";
 
 export default interface GetSongListUseCase {
-  execute(): Promise<Song[]>
+  execute(limit?: number, filter?: string): Promise<Song[]>
 }
 
 export class DefaultGetSongListUseCase implements GetSongListUseCase {
@@ -10,12 +10,12 @@ export class DefaultGetSongListUseCase implements GetSongListUseCase {
   constructor(repository: KaraokeRepository) {
     this.repository = repository;
   }
-  async execute() : Promise<Song[]> {
+  async execute(limit?: number, filter?: string) : Promise<Song[]> {
     // first, get the list of files
     var files = await this.repository.getSongFiles();
 
     // then, get the list of records
-    var records = await this.repository.getSongRecords();
+    var records = await this.repository.getSongRecords(limit, filter);
 
     // // then, merge the two lists
     // // essentially, the filter and map the records whose `file` property is in the list of files

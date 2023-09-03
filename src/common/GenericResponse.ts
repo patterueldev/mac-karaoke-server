@@ -9,8 +9,8 @@ class GenericResponse {
         this.data = data;
     }
 
-    static success(data: any) {
-        return new GenericResponse(data, 'OK', 200);
+    static success(data: any, message: string = 'OK') {
+        return new GenericResponse(data, message, 200);
     }
 
     static failure(error: any, code?: number) {
