@@ -32,7 +32,7 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
     return this.client;
   }
 
-  async getSongRecords(limit?: number, filter?: string): Promise<SongRecord[]> {
+  async getSongRecords(filter?: string, offset?: number, limit?: number): Promise<SongRecord[]> {
     await this.initializeClient();
     // const songs = await MongooseSongRecord.find();
     if (!limit) limit = 0;
@@ -47,6 +47,7 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
     }
     return await MongooseSongRecord.find(filterQuery)
       .sort({ title: 1 })
+      .skip(offset || 0)
       .limit(limit);
   }
   
@@ -110,6 +111,8 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
   }
   
   async resumeQueue(): Promise<void> {
+    // await this.initializeClient();
+    // var reservedSongs = await this.getReservedSongRecords();
     this.manager.playNext();
   }
 
@@ -180,5 +183,16 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
     if (!record) return;
     record.currentlyPlaying = true;
     await record.save();
+  }
+
+  async removeReservedSong(reservationId: string): Promise<void> {
+      await this.initializeClient();
+      const record = await MongooseReservedSongRecord.findOne({ _id: reservationId });
+      if (!record) return;
+      await record.deleteOne();
+  }
+
+  async stopCurrentSong(): Promise<void> {
+    this.manager.stop();
   }
 }

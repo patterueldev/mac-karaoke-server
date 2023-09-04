@@ -8,6 +8,8 @@ import ReserveSongUseCase, { DefaultReserveSongUseCase } from "./domain/useCases
 import RestoreReservedSongsUseCase, { DefaultRestoreReservedSongsUseCase } from "./domain/useCases/RestoreReservedSongsUseCase";
 import SynchronizeRecordsUseCase, { DefaultSynchronizeRecordsUseCase } from "./domain/useCases/SynchronizeRecordsUseCase";
 import AutoUpdateSongsUseCase, { DefaultAutoUpdateSongsUseCase } from "./domain/useCases/AutoUpdateSongsUseCase";
+import RemoveReservedSongUseCase, { DefaultRemoveReservedSongUseCase } from "./domain/useCases/RemoveReservedSongUseCase";
+import StopCurrentSongUseCase, { DefaultStopCurrentSongUseCase } from "./domain/useCases/StopCurrentSongUseCase";
 
 // Load environment variables
 const uri = process.env.MONGODB_URI;
@@ -27,7 +29,7 @@ const openai = new OpenAI({
 });
 const karaokeRepository = new KaraokeDataSource(uri, directoryPath, karaokeManager, openai);
 
-export const serverPort = port;
+export const serverPort = parseInt(port) || 3000;
 export const getSongListUseCase: GetSongListUseCase = new DefaultGetSongListUseCase(karaokeRepository);
 export const synchronizeRecordsUseCase: SynchronizeRecordsUseCase = new DefaultSynchronizeRecordsUseCase(karaokeRepository);
 export const reserveSongUseCase: ReserveSongUseCase = new DefaultReserveSongUseCase(karaokeRepository);
@@ -35,3 +37,5 @@ export const getReservedSongListUseCase: GetReservedSongListUseCase = new Defaul
 export const restoreReservedSongsUseCase: RestoreReservedSongsUseCase = new DefaultRestoreReservedSongsUseCase(karaokeRepository);
 export const generateServerQRUseCase: GenerateServerQRUseCase = new DefaultGenerateServerQRUseCase();
 export const autoUpdateSongsUseCase: AutoUpdateSongsUseCase = new DefaultAutoUpdateSongsUseCase(karaokeRepository, openAISongPrompt);
+export const removeReservedSongUseCase: RemoveReservedSongUseCase = new DefaultRemoveReservedSongUseCase(karaokeRepository);
+export const stopCurrentSongUseCase: StopCurrentSongUseCase = new DefaultStopCurrentSongUseCase(karaokeRepository);

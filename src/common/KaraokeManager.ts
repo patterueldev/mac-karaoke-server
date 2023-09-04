@@ -2,11 +2,12 @@ import { Mongoose } from "mongoose";
 import ReservedSong from "../domain/entities/ReservedSong";
 import ReservedSongRecord from "../domain/entities/ReservedSongRecord";
 import SongRecord from "../domain/entities/SongRecord";
-import { exec } from "child_process";
+import { ChildProcess, exec } from "child_process";
 
 export default interface KaraokeManager {
   delegate: KaraokeDelegate | undefined;
   playNext(): Promise<void>;
+  stop(): Promise<void>;
 }
 
 export interface KaraokeDelegate {
@@ -21,6 +22,8 @@ export class DefaultKaraokeManager implements KaraokeManager {
   
   private directoryPath: string;
   private vlcCli: string;
+
+  private currentProcess: ChildProcess | undefined;
 
   constructor(directoryPath: string, vlcCli: string = 'vlc') {
     this.directoryPath = directoryPath;
@@ -44,14 +47,24 @@ export class DefaultKaraokeManager implements KaraokeManager {
     await this.playNext();
   }
 
+  async stop(): Promise<void> {
+    this.currentProcess?.kill();
+  }
+  
   private async executeCommand(command: string) {
     var promise = new Promise<void>((resolve, reject) => {
-      exec(command, (error) => {
+      this.currentProcess = exec(command, (error) => {
         if (error) {
+          console.log(error);
           reject(error);
         } else {
+          console.log(`Command executed successfully: ${command}`);
           resolve();
         }
+      });
+      this.currentProcess.on('exit', (code, signal) => {
+        console.log(`Command exited with code: ${code} and signal: ${signal}`);
+        resolve();
       });
     });
     await promise;
