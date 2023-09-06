@@ -24,6 +24,8 @@ export class DefaultKaraokeManager implements KaraokeManager {
   private vlcCli: string;
 
   private currentProcess: ChildProcess | undefined;
+  private shiftPromise: Promise<void> | undefined;
+  private shiftCompletion: (() => void) | undefined;
 
   constructor(directoryPath: string, vlcCli: string = 'vlc') {
     this.directoryPath = directoryPath;
@@ -44,11 +46,18 @@ export class DefaultKaraokeManager implements KaraokeManager {
     await this.delegate?.markedAsPlaying(reservedSongs[0]);
     await this.executeCommand(vlcCommand)
     await this.delegate?.shiftReservedSongs();
+    this.shiftCompletion?.();
     await this.playNext();
   }
 
   async stop(): Promise<void> {
+    this.shiftPromise = new Promise<void>((resolve, reject) => {
+      this.shiftCompletion = resolve;
+    });
     this.currentProcess?.kill();
+    // wait for the reserver to shift the songs
+    // just delay for 1 second; I think it's enough
+    await this.shiftPromise;
   }
   
   private async executeCommand(command: string) {

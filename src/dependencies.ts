@@ -23,13 +23,25 @@ if (!openAIKey) throw new Error('Missing openai api key');
 const openAISongPrompt = process.env.OPENAI_SONG_PROMPT;
 if (!openAISongPrompt) throw new Error('Missing openai song prompt');
 
-const karaokeManager = new DefaultKaraokeManager(directoryPath);
-const openai = new OpenAI({
+// fs: symbolically link the directory path to the public folder
+// so that the client can access the files
+import fs from 'fs';
+import path from "path";
+import GetSongWithIDUseCase, { DefaultGetSongWithIDUseCase } from "./domain/useCases/GetSongWithIDUseCase";
+const destinationPath = path.join(__dirname, 'static/songs');
+if (fs.existsSync(directoryPath) && !fs.existsSync(destinationPath)) {
+  fs.symlinkSync(directoryPath, destinationPath);
+}
+
+
+const karaokeManager: KaraokeManager = new DefaultKaraokeManager(directoryPath);
+const openai: OpenAI = new OpenAI({
   apiKey: openAIKey,
 });
 const karaokeRepository = new KaraokeDataSource(uri, directoryPath, karaokeManager, openai);
 
 export const serverPort = parseInt(port) || 3000;
+export const songsPath = destinationPath;
 export const getSongListUseCase: GetSongListUseCase = new DefaultGetSongListUseCase(karaokeRepository);
 export const synchronizeRecordsUseCase: SynchronizeRecordsUseCase = new DefaultSynchronizeRecordsUseCase(karaokeRepository);
 export const reserveSongUseCase: ReserveSongUseCase = new DefaultReserveSongUseCase(karaokeRepository);
@@ -39,3 +51,4 @@ export const generateServerQRUseCase: GenerateServerQRUseCase = new DefaultGener
 export const autoUpdateSongsUseCase: AutoUpdateSongsUseCase = new DefaultAutoUpdateSongsUseCase(karaokeRepository, openAISongPrompt);
 export const removeReservedSongUseCase: RemoveReservedSongUseCase = new DefaultRemoveReservedSongUseCase(karaokeRepository);
 export const stopCurrentSongUseCase: StopCurrentSongUseCase = new DefaultStopCurrentSongUseCase(karaokeRepository);
+export const getSongWithIDUseCase: GetSongWithIDUseCase = new DefaultGetSongWithIDUseCase(karaokeRepository);

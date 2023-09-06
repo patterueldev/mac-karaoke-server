@@ -90,11 +90,12 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
     const reserved = new MongooseReservedSongRecord({
       songRecord: songRecord,
     });
-    await reserved.save();
-    var reservedSongs = await this.getReservedSongRecords();
-    if(reservedSongs.length == 1) {
-      await this.manager.playNext();
-    }
+    await reserved.save(); 
+    // will not use VLC temporarily
+    // var reservedSongs = await this.getReservedSongRecords();
+    // if(reservedSongs.length == 1) {
+    //   await this.manager.playNext();
+    // }
   }
 
   async getQueue(): Promise<ReservedSong[]> {
@@ -193,6 +194,6 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
   }
 
   async stopCurrentSong(): Promise<void> {
-    this.manager.stop();
+    await this.manager.stop();
   }
 }

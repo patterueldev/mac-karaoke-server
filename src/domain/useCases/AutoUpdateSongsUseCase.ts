@@ -15,8 +15,15 @@ export class DefaultAutoUpdateSongsUseCase {
   }
 
   async execute(limit: number): Promise<Song[]> {
-    const records = await this.repository.getUnupdatedSongRecords(limit);
-    const filenames = records.map((record) => record.file);
-    return await this.repository.autoUpdateMetadataForSongs(filenames, this.openAISongPrompt)
+    // let's loop this until unupdated songs are empty
+    var records = await this.repository.getUnupdatedSongRecords(limit);
+    var songsUpdated: Song[] = [];
+    while (records.length > 0) {
+      const filenames = records.map((record) => record.file);
+      var songs = await this.repository.autoUpdateMetadataForSongs(filenames, this.openAISongPrompt);
+      songsUpdated.push(...songs);
+      records = await this.repository.getUnupdatedSongRecords(limit);
+    }
+    return songsUpdated;
   }
 }
