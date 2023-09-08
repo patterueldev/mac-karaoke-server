@@ -79,9 +79,9 @@ export const serverPort = parseInt(port) || 3000;
 export const songsPath = destinationPath;
 
 export const onPlayerClientConnectedUseCase: OnPlayerClientConnectedUseCase = new DefaultOnPlayerClientConnectedUseCase(reservedSongRepository, emitterManager);
-export const onPlayerClientFinishedPlayingUseCase: OnPlayerClientFinishedPlayingUseCase = new DefaultOnPlayerClientFinishedPlayingUseCase(reservedSongRepository);
+export const onPlayerClientFinishedPlayingUseCase: OnPlayerClientFinishedPlayingUseCase = new DefaultOnPlayerClientFinishedPlayingUseCase(reservedSongRepository, emitterManager);
 export const onControllerClientConnectedUseCase: OnControllerClientConnectedUseCase = new DefaultOnControllerClientConnectedUseCase(reservedSongRepository, emitterManager);
-export const onControllerSongStopUseCase: OnControllerSongStopUseCase = new DefaultOnControllerSongStopUseCase(reservedSongRepository);
+export const onControllerSongStopUseCase: OnControllerSongStopUseCase = new DefaultOnControllerSongStopUseCase(reservedSongRepository, emitterManager);
 export const getSongListUseCase: GetSongListUseCase = new DefaultGetSongListUseCase(songRepository);
 export const synchronizeRecordsUseCase: SynchronizeRecordsUseCase = new DefaultSynchronizeRecordsUseCase(karaokeRepository);
 export const reserveSongUseCase: ReserveSongUseCase = new DefaultReserveSongUseCase(songRepository, reservedSongRepository, emitterManager);

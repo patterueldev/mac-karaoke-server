@@ -5,31 +5,26 @@ import { getReservedSongListUseCase, onControllerClientConnectedUseCase, onContr
 import { Event } from './common/Event';
 
 // 
-var playerSocket: Socket | undefined;
-var controllerSocket: Socket | undefined;
-
 socketIO.on('connection', (socket: Socket) => {
   console.log('A client connected: ' + socket.id);
 
   socket.on(Event.PlayerClientConnected, async () => {
-    playerSocket = socket;
     console.log(`Player client ${socket.id} connected`);
     await onPlayerClientConnectedUseCase.execute(socket);
 
     socket.on(Event.PlayerClientFinishedPlaying, async () => {
       console.log('PlayerClientFinishedPlaying from: ' + socket.id)
-      await onPlayerClientFinishedPlayingUseCase.execute(socket, controllerSocket);
+      await onPlayerClientFinishedPlayingUseCase.execute();
     });
   });
 
   socket.on(Event.ControllerClientConnected, async () => {
-    controllerSocket = socket;
     console.log(`Controller client ${socket.id} connected`);
     await onControllerClientConnectedUseCase.execute(socket);
     
     socket.on(Event.ControllerSongStopped, async () => {
       console.log('ControllerSongStopped from: ' + socket.id)
-      await onControllerSongStopUseCase.execute(socket, playerSocket);
+      await onControllerSongStopUseCase.execute();
     });
   });
 });
@@ -41,11 +36,5 @@ socketIO.on('connect_error', (err) => {
 socketIO.on('disconnect', () => {
   console.log('A client disconnected');
 });
-
-// event manager
-// socketIO.on(Event.PlayerClientConnected, async (socket: Socket) => {
-//   console.log(`Controller client ${socket.id} connected`);
-//   await onPlayerClientConnectedUseCase.execute(socketIO, socket);
-// });
 
 export const socket = socketIO;
