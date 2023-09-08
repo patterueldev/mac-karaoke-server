@@ -14,7 +14,7 @@ const mongooseSongRecordSchema = new Schema<MongooseSongRecordModel>({
   title: { type: String, required: true },
   artist: { type: String, required: false },
   image: { type: String, required: false },
-  file: { type: String, required: true },
+  source: { type: String, required: true },
   containsLyrics: { type: Boolean, required: true, default: true },
   containsVoice: { type: Boolean, required: true, default: false },
   openAIUpdated: { type: Boolean, required: true, default: false },

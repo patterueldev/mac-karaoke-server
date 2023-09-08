@@ -2,13 +2,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, {Request, Response} from 'express';
-import router from './router';
-import { getSongWithIDUseCase, restoreReservedSongsUseCase, serverPort, songsPath } from './dependencies';
+import http from 'http';
+import { Server, Socket } from 'socket.io';
 
-const app = express();
+import router from './router';
+import { expressApp, getReservedSongListUseCase, getSongWithIDUseCase, restoreReservedSongsUseCase, serverPort, socketIO, socketServer, songsPath } from './dependencies';
+
+import './socket';
+const app = expressApp;
+const server = socketServer;
+
 app.use(express.json());
 app.use('/api', router);
-
 app.use('/song', async (req: Request, res: Response) => {
   const identifier = req.query.id as (string | undefined);
   if (!identifier) {
@@ -16,14 +21,11 @@ app.use('/song', async (req: Request, res: Response) => {
     return;
   }
   const record = await getSongWithIDUseCase.execute(identifier);
-  const filename = record.file;
+  const filename = record.source;
   const path = `${songsPath}/${filename}`;
   res.status(200).sendFile(path);
 })
 
-restoreReservedSongsUseCase.execute().then(() => {
-  console.log('Restored reserved songs');
-  app.listen(serverPort, () => {
-    console.log(`Server listening on port ${serverPort}`);
-  });
+server.listen(serverPort, () => {
+  console.log(`Socket listening on port ${serverPort}`);
 });

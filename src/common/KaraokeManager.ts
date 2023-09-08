@@ -40,7 +40,7 @@ export class DefaultKaraokeManager implements KaraokeManager {
     }
     
     const songRecord = reservedSongs[0].songRecord;
-    const file = songRecord.file;
+    const file = songRecord.source;
     const vlcCommand = `${this.vlcCli} "${this.directoryPath}/${file}" --fullscreen vlc://quit`;
     
     await this.delegate?.markedAsPlaying(reservedSongs[0]);

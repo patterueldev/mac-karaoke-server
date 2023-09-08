@@ -4,12 +4,8 @@ import { autoUpdateSongsUseCase, generateServerQRUseCase, getReservedSongListUse
 
 const router = express.Router();
 
-router.get('/', async (req: Request, res: Response) => {
-  var response = GenericResponse.success('Welcome!');
-  res.send(response);
-});
-
 router.get('/songs', async (req: Request, res: Response) => {
+  console.log('GET /songs');
   var limit = req.query.limit || req.body.limit || undefined;
   var offset = req.query.offset || req.body.offset || undefined;
   var filter = req.query.filter || req.body.filter || undefined;

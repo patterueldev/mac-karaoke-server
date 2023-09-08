@@ -15,7 +15,7 @@ export function justSong(songRecord: SongRecord): Song {
     containsVoice: songRecord.containsVoice,
     language: songRecord.language,
     localizations: songRecord.localizations,
-    file: songRecord.file,
+    source: songRecord.source,
   };
   return song;
 }

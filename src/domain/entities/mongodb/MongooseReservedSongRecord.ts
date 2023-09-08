@@ -7,6 +7,8 @@ interface MongooseReservedSongRecordModel extends ReservedSongRecord, Document {
 const mongooseReservedSongSchema = new Schema<MongooseReservedSongRecordModel>({
   songRecord: { type: Schema.Types.ObjectId, ref: "song", required: true },
   currentlyPlaying: { type: Boolean, required: true, default: false },
+  before: { type: Schema.Types.ObjectId, ref: "reservedSong", required: false },
+  after: { type: Schema.Types.ObjectId, ref: "reservedSong", required: false },
 }, {
   toJSON: { getters: true },
   id: false,
@@ -16,7 +18,7 @@ mongooseReservedSongSchema.virtual("identifier").get(function(this: MongooseRese
   return this._id.toString();
 });
 mongooseReservedSongSchema.virtual("song").get(function(this: MongooseReservedSongRecordModel) {
-  return this.songRecord.justSong();
+  return this.songRecord;
 });
 mongooseReservedSongSchema.methods.justReservedSong = function(this: MongooseReservedSongRecordModel) {
   return justReservedSong(this);

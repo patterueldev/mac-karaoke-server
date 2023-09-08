@@ -1,16 +1,17 @@
 import KaraokeRepository from "../../data/repositories/KaraokeRepository";
+import ReservedSongRepository from "../../data/repositories/ReservedSongRepository";
 
 export default interface StopCurrentSongUseCase {
   execute(): Promise<void>;
 }
 
 export class DefaultStopCurrentSongUseCase implements StopCurrentSongUseCase {
-  karaokeRepository: KaraokeRepository;
-  constructor(karaokeRepository: KaraokeRepository) {
-    this.karaokeRepository = karaokeRepository;
+  reservedSongRepository: ReservedSongRepository;
+  constructor(reservedSongRepository: ReservedSongRepository) {
+    this.reservedSongRepository = reservedSongRepository;
   }
   
   async execute(): Promise<void> {
-      await this.karaokeRepository.stopCurrentSong();
+      await this.reservedSongRepository.shiftReservedSongList();
   }
 }

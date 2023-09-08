@@ -1,17 +1,18 @@
-import KaraokeRepository from "../../data/repositories/KaraokeRepository";
+import ReservedSongRepository from "../../data/repositories/ReservedSongRepository";
 
 export default interface RemoveReservedSongUseCase {
-  execute(reservationId: string): Promise<void>;
+  execute(id: string): Promise<void>;
 }
 
 export class DefaultRemoveReservedSongUseCase {
-  karaokeRepository: KaraokeRepository;
+  reservedSongRepository: ReservedSongRepository;
 
-  constructor(karaokeRepository: KaraokeRepository) {
-    this.karaokeRepository = karaokeRepository;
+  constructor(reservedSongRepository: ReservedSongRepository) {
+    this.reservedSongRepository = reservedSongRepository;
   }
 
-  async execute(reservationId: string): Promise<void> {
-    await this.karaokeRepository.removeReservedSong(reservationId);
+  async execute(id: string): Promise<void> {
+    console.log(`Removing reserved song with id: ${id}`);
+    await this.reservedSongRepository.deleteReservedSong(id);
   }
-}
+} 

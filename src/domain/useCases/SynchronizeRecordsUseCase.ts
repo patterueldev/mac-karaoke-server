@@ -20,7 +20,7 @@ export class DefaultSynchronizeRecordsUseCase implements SynchronizeRecordsUseCa
     // so, let's filter the files that are still not in the records
     var filesToRecord = files.filter((file) => {
       return !records.some((record) => {
-        return record.file == file;
+        return record.source == file;
       });
     });
 

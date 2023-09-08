@@ -9,5 +9,5 @@ export default interface Song {
   containsVoice: boolean;
   language: string | undefined;
   localizations: Localization[];
-  file: string;
+  source: string;
 }

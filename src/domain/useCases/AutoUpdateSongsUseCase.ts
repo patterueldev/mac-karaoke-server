@@ -19,7 +19,7 @@ export class DefaultAutoUpdateSongsUseCase {
     var records = await this.repository.getUnupdatedSongRecords(limit);
     var songsUpdated: Song[] = [];
     while (records.length > 0) {
-      const filenames = records.map((record) => record.file);
+      const filenames = records.map((record) => record.source);
       var songs = await this.repository.autoUpdateMetadataForSongs(filenames, this.openAISongPrompt);
       songsUpdated.push(...songs);
       records = await this.repository.getUnupdatedSongRecords(limit);

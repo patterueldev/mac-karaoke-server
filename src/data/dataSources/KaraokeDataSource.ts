@@ -9,20 +9,23 @@ import { MongooseReservedSongRecord } from "../../domain/entities/mongodb/Mongoo
 import ReservedSong from "../../domain/entities/ReservedSong";
 import ReservedSongRecord from "../../domain/entities/ReservedSongRecord";
 import OpenAI from "openai";
+import { Server, Socket } from "socket.io";
 
 export default class KaraokeDataSource implements KaraokeRepository, KaraokeDelegate {
   private uri: string;
   private client: typeof mongoose | undefined;
   private manager: KaraokeManager;
   private openai: OpenAI;
+  private socket: Server;
   
   directoryPath: string;
-  constructor(uri: string, directoryPath: string, manager: KaraokeManager, openai: OpenAI) {
+  constructor(uri: string, directoryPath: string, manager: KaraokeManager, openai: OpenAI, socket: Server) {
     this.uri = uri;
     this.directoryPath = directoryPath;
     manager.delegate = this;
     this.manager = manager;
     this.openai = openai;
+    this.socket = socket;
   }
 
   private async initializeClient(): Promise<typeof mongoose> {
@@ -91,6 +94,7 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
       songRecord: songRecord,
     });
     await reserved.save(); 
+    this.socket.emit('reserved_songs_update', await this.getQueue());
     // will not use VLC temporarily
     // var reservedSongs = await this.getReservedSongRecords();
     // if(reservedSongs.length == 1) {
@@ -151,7 +155,7 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
     var updatedRecords: SongRecord[] = [];
     for (var i = 0; i < result.length; i++) {
       var record = result[i];
-      var songRecord = await MongooseSongRecord.findOne({ file: record.file });
+      var songRecord = await MongooseSongRecord.findOne({ source: record.file });
       if (!songRecord) continue;
       songRecord.title = record.title;
       songRecord.artist = record.artist;
