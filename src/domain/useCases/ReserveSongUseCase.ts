@@ -1,3 +1,5 @@
+import EmitterManager from "../../common/EmitterManager";
+import { Event } from "../../common/Event";
 import KaraokeRepository from "../../data/repositories/KaraokeRepository";
 import ReservedSongRepository from "../../data/repositories/ReservedSongRepository";
 import SongRepository from "../../data/repositories/SongRepository";
@@ -10,15 +12,18 @@ export default interface ReserveSongUseCase {
 export class DefaultReserveSongUseCase implements ReserveSongUseCase {
   songRepository: SongRepository;
   reservedSongRepository: ReservedSongRepository;
-  constructor(songRepository: SongRepository, reservedSongRepository: ReservedSongRepository) {
+  emitterManager: EmitterManager;
+  
+  constructor(songRepository: SongRepository, reservedSongRepository: ReservedSongRepository, emitterManager: EmitterManager) {
     this.songRepository = songRepository;
     this.reservedSongRepository = reservedSongRepository;
+    this.emitterManager = emitterManager;
   }
   async execute(identifier: string) : Promise<Song> {
-    // return this.repository.reserveSong(identifier);
-
     const record = await this.songRepository.getSong(identifier);
-    this.reservedSongRepository.createReservedSong(record);
+    await this.reservedSongRepository.createReservedSong(record);
+    let reserved = await this.reservedSongRepository.getReservedSongs();
+    this.emitterManager.emitToAll(Event.ReservedSongListUpdated, reserved);
     return record;
   }
 }

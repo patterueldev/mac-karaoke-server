@@ -48,12 +48,14 @@ import ReservedSongDataSource from "./data/dataSources/ReservedSongDataSource";
 import OnControllerClientConnectedUseCase, { DefaultOnControllerClientConnectedUseCase } from "./domain/useCases/OnControllerClientConnectedUseCase";
 import OnPlayerClientFinishedPlayingUseCase, { DefaultOnPlayerClientFinishedPlayingUseCase } from "./domain/useCases/OnPlayerClientFinishedPlayingUseCase";
 import OnControllerSongStopUseCase, { DefaultOnControllerSongStopUseCase } from "./domain/useCases/OnControllerSongStopUseCase";
+import EmitterManager, { SocketIOManager } from "./common/EmitterManager";
 const destinationPath = path.join(__dirname, 'static/songs');
 if (fs.existsSync(directoryPath) && !fs.existsSync(destinationPath)) {
   fs.symlinkSync(directoryPath, destinationPath);
 }
 
 
+const emitterManager: EmitterManager = new SocketIOManager();
 const karaokeManager: KaraokeManager = new DefaultKaraokeManager(directoryPath);
 const openai: OpenAI = new OpenAI({
   apiKey: openAIKey,
@@ -76,13 +78,13 @@ export const socketIO = socketIOServer;
 export const serverPort = parseInt(port) || 3000;
 export const songsPath = destinationPath;
 
-export const onPlayerClientConnectedUseCase: OnPlayerClientConnectedUseCase = new DefaultOnPlayerClientConnectedUseCase(reservedSongRepository);
+export const onPlayerClientConnectedUseCase: OnPlayerClientConnectedUseCase = new DefaultOnPlayerClientConnectedUseCase(reservedSongRepository, emitterManager);
 export const onPlayerClientFinishedPlayingUseCase: OnPlayerClientFinishedPlayingUseCase = new DefaultOnPlayerClientFinishedPlayingUseCase(reservedSongRepository);
-export const onControllerClientConnectedUseCase: OnControllerClientConnectedUseCase = new DefaultOnControllerClientConnectedUseCase(reservedSongRepository);
+export const onControllerClientConnectedUseCase: OnControllerClientConnectedUseCase = new DefaultOnControllerClientConnectedUseCase(reservedSongRepository, emitterManager);
 export const onControllerSongStopUseCase: OnControllerSongStopUseCase = new DefaultOnControllerSongStopUseCase(reservedSongRepository);
 export const getSongListUseCase: GetSongListUseCase = new DefaultGetSongListUseCase(songRepository);
 export const synchronizeRecordsUseCase: SynchronizeRecordsUseCase = new DefaultSynchronizeRecordsUseCase(karaokeRepository);
-export const reserveSongUseCase: ReserveSongUseCase = new DefaultReserveSongUseCase(songRepository, reservedSongRepository);
+export const reserveSongUseCase: ReserveSongUseCase = new DefaultReserveSongUseCase(songRepository, reservedSongRepository, emitterManager);
 export const getReservedSongListUseCase: GetReservedSongListUseCase = new DefaultGetReservedSongListUseCase(karaokeRepository);
 export const restoreReservedSongsUseCase: RestoreReservedSongsUseCase = new DefaultRestoreReservedSongsUseCase(karaokeRepository);
 export const generateServerQRUseCase: GenerateServerQRUseCase = new DefaultGenerateServerQRUseCase();
