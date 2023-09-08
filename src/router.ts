@@ -62,7 +62,7 @@ router.post('/autoupdate', async (req: Request, res: Response) => {
 router.delete('/reserved/:id/cancel', async (req: Request, res: Response) => {
   var id = req.params.id;
   try {
-    var result = await removeReservedSongUseCase.execute(id);
+    await removeReservedSongUseCase.execute(id);
     var response = GenericResponse.success('Song removed!');
     res.send(response);
   } catch (error) {

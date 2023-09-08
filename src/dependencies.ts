@@ -89,6 +89,6 @@ export const getReservedSongListUseCase: GetReservedSongListUseCase = new Defaul
 export const restoreReservedSongsUseCase: RestoreReservedSongsUseCase = new DefaultRestoreReservedSongsUseCase(karaokeRepository);
 export const generateServerQRUseCase: GenerateServerQRUseCase = new DefaultGenerateServerQRUseCase();
 export const autoUpdateSongsUseCase: AutoUpdateSongsUseCase = new DefaultAutoUpdateSongsUseCase(karaokeRepository, openAISongPrompt);
-export const removeReservedSongUseCase: RemoveReservedSongUseCase = new DefaultRemoveReservedSongUseCase(reservedSongRepository);
+export const removeReservedSongUseCase: RemoveReservedSongUseCase = new DefaultRemoveReservedSongUseCase(reservedSongRepository, emitterManager);
 export const stopCurrentSongUseCase: StopCurrentSongUseCase = new DefaultStopCurrentSongUseCase(reservedSongRepository);
 export const getSongWithIDUseCase: GetSongUseCase = new DefaultGetSongUseCase(songRepository);
