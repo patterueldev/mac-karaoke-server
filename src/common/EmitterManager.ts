@@ -30,13 +30,6 @@ export class SocketIOManager implements EmitterManager {
   }
 
   setupPlayerEmitter(emit: EventEmitter): void {
-    let socket = emit as Socket;
-    let current = this.playerEmitter as Socket;
-    if (this.playerEmitter) {
-      if (socket.id !== current.id && current.connected) {
-        throw new Error("Player client already exists");
-      }
-    }
     this.playerEmitter = emit;
   }
 

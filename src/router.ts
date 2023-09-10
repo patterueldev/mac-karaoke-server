@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import GenericResponse from './common/GenericResponse';
 import Dependencies from './common/Dependencies';
+import Song from './domain/entities/Song';
 
 const router = express.Router();
 
@@ -19,6 +20,30 @@ router.post('/songs/item/:id/queue', async (req: Request, res: Response) => {
   await GenericResponse.send(res, async () => {
       var song = await Dependencies.reserveSongUseCase().execute(id);
       return `Song added to queue! Title: ${song.title}`;
+  });
+});
+
+router.get('/songs/item/:id/optimized', async (req: Request, res: Response) => {
+  var id = req.params.id;
+  await GenericResponse.send(res, async () => {
+    return await Dependencies.optimizedSongDataUseCase().execute(id);
+  });
+});
+
+router.post('/songs/identify', async (req: Request, res: Response) => {
+  await GenericResponse.send(res, async () => {
+    let url = req.query.url || req.body.url || undefined;
+    if(!url) throw new Error('No url provided!');
+    return await Dependencies.getSongMetadataForUrlUseCase().execute(url);
+  });
+});
+
+router.post('/songs/download', async (req: Request, res: Response) => {
+  await GenericResponse.send(res, async () => {
+    let song: Song = req.body as Song;
+    console.log('Downloading song: ' + song.title)
+    await Dependencies.downloadSongUseCase().execute(song);
+    return 'Download started!';
   });
 });
 
@@ -44,14 +69,14 @@ router.delete('/queue/current/cancel', async (req: Request, res: Response) => {
 });
 
 // For Data Optimization
-router.post('/data-sync', async (req: Request, res: Response) => {
+router.post('/data/sync', async (req: Request, res: Response) => {
   await GenericResponse.send(res, async () => {
     await Dependencies.synchronizeRecordsUseCase().execute();
     return 'Records synchronized!';
   });
 })
 
-router.post('/data-autoupdate', async (req: Request, res: Response) => {
+router.post('/data/autoupdate', async (req: Request, res: Response) => {
   var queryLimit = req.query.limit;
   var bodyLimit = req.body.limit;
   var rawLimit = queryLimit || bodyLimit || 5;

@@ -24,8 +24,10 @@ export class DefaultReserveSongUseCase implements ReserveSongUseCase {
     let reserved = await this.reservedSongRepository.createReservedSong(record);
     (async () => {
       let queued = await this.reservedSongRepository.getReservedSongs();
+      console.log('Reserved song list updated! ' + queued.length + ' songs in queue.')
       this.emitterManager.emitToAll(Event.ReservedSongListUpdated, queued);
       if (queued.length === 1) {
+        console.log('Playing first song in queue...')
         this.emitterManager.emitToPlayer(Event.PlayerClientPlay, reserved);
       }
     })();

@@ -11,9 +11,14 @@ export default class Constants {
     return process.env.DIRECTORY_PATH;
   });
 
-  static systemPrompt: Lazy<string> = lazyValue(() => {
+  static songFilePrompt: Lazy<string> = lazyValue(() => {
     if (!process.env.OPENAI_SONG_PROMPT) throw new Error('Missing openai song prompt');
     return process.env.OPENAI_SONG_PROMPT;
+  });
+
+  static videoMetadataPrompt: Lazy<string> = lazyValue(() => {
+    if (!process.env.OPENAI_SONG_IDENTIFICATION_PROMPT) throw new Error('Missing openai video prompt');
+    return process.env.OPENAI_SONG_IDENTIFICATION_PROMPT;
   });
 
   static openAIKey: Lazy<string> = lazyValue(() => {
@@ -24,5 +29,10 @@ export default class Constants {
   static serverPort: Lazy<number> = lazyValue(() => {
     if (!process.env.SERVER_PORT) throw new Error('Missing port');
     return parseInt(process.env.SERVER_PORT) || 3000;
+  });
+
+  static youtubeAPIKey: Lazy<string> = lazyValue(() => {
+    if (!process.env.YOUTUBE_API_KEY) throw new Error('Missing YouTube api key');
+    return process.env.YOUTUBE_API_KEY;
   });
 }

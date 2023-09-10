@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import http from 'http';
 import express, {Express} from 'express';
+import fs from 'fs';
 import { Server } from "socket.io";
 import GenerateServerQRUseCase, { DefaultGenerateServerQRUseCase } from "../domain/useCases/GenerateServerQRUseCase";
 import GetReservedSongListUseCase, { DefaultGetReservedSongListUseCase } from "../domain/useCases/GetReservedSongListUseCase";
@@ -28,17 +29,30 @@ import GenerativeAIRepository from "../data/repositories/GenerativeAIRepository"
 import GenerativeAIDataSource from "../data/dataSources/GenerativeAIDataSource";
 import Constants from "./Constants";
 import GetSongMediaPathUseCase, { DefaultGetSongMediaPathUseCase } from "../domain/useCases/GetSongMediaPathUseCase";
+import StreamingSiteRepository from "../data/repositories/StreamingSiteRepository";
+import GetSongMetadataForUrlUseCase, { DefaultGetSongMetadataForUrlUseCase } from "../domain/useCases/GetSongMetadataForUrlUseCase";
+import { youtube_v3 } from "@googleapis/youtube";
+import ytdl from "ytdl-core";
+import StreamingSiteDataSource from "../data/dataSources/StreamingSiteDataSource";
+import OptimizedSongDataUseCase, { DefaultOptimizedSongDataUseCase } from "../domain/useCases/OptimizedSongDataUseCase";
+import DownloadManager, { DefaultDownloadManager } from "./DownloadManager";
+import DownloadDataFromUrlUseCase, { DefaultDownloadDataFromUrlUseCase } from "../domain/useCases/DownloadDataFromUrlUseCase";
+import DownloadSongUseCase, { DefaultDownloadSongUseCase } from "../domain/useCases/DownloadSongUseCase";
 
 export default class Dependencies {
   // Private & internal dependencies
   private static clientBuilder: Lazy<() => Promise<typeof mongoose>> = lazyValue(() => lazyValueAsync(async () => await mongoose.connect(Constants.uri())));
   private static emitterManager: Lazy<EmitterManager> = lazyValue(() => new SocketIOManager());
+  private static downloadManager: Lazy<DownloadManager> = lazyValue(() => new DefaultDownloadManager(this.ytdl(), this.fs(), Constants.directoryPath()));
+  private static fs: Lazy<typeof fs> = lazyValue(() => fs);
   private static openAI: Lazy<OpenAI> = lazyValue(() => new OpenAI({ apiKey: Constants.openAIKey() }));
+  private static ytdl: Lazy<typeof ytdl> = lazyValue(() => ytdl);
 
   private static songRepository: Lazy<SongRepository> = lazyValue(() => new SongDataSource(this.clientBuilder()));
   private static reservedSongRepository: Lazy<ReservedSongRepository> = lazyValue(() => new ReservedSongDataSource(this.clientBuilder()));
   private static fileRepository: Lazy<FileRepository> = lazyValue(() => new FileDataSource(Constants.directoryPath()));
-  private static generativeAIRepository: Lazy<GenerativeAIRepository> = lazyValue(() => new GenerativeAIDataSource(this.openAI(), Constants.systemPrompt()));
+  private static generativeAIRepository: Lazy<GenerativeAIRepository> = lazyValue(() => new GenerativeAIDataSource(this.openAI(), Constants.songFilePrompt(), Constants.videoMetadataPrompt()));
+  private static streamingSiteRepository: Lazy<StreamingSiteRepository> = lazyValue(() => new StreamingSiteDataSource(this.ytdl()));
 
   // Public dependencies
   static expressApp: Lazy<Express> = lazyValue(() => express());
@@ -56,7 +70,12 @@ export default class Dependencies {
 
   static synchronizeRecordsUseCase: Lazy<SynchronizeRecordsUseCase> = lazyValue(() => new DefaultSynchronizeRecordsUseCase(this.fileRepository(), this.songRepository()));
   static autoUpdateSongsUseCase: Lazy<AutoUpdateSongsUseCase> = lazyValue(() => new DefaultAutoUpdateSongsUseCase(this.songRepository(), this.generativeAIRepository()));
-
+  
+  static getSongMetadataForUrlUseCase: Lazy<GetSongMetadataForUrlUseCase> = lazyValue(() => new DefaultGetSongMetadataForUrlUseCase(this.streamingSiteRepository(), this.generativeAIRepository(), this.downloadManager()));
+  static optimizedSongDataUseCase: Lazy<OptimizedSongDataUseCase> = lazyValue(() => new DefaultOptimizedSongDataUseCase(this.songRepository(), this.streamingSiteRepository(), this.generativeAIRepository()));
+  static downloadDataFromUrlUseCase: Lazy<DownloadDataFromUrlUseCase> = lazyValue(() => new DefaultDownloadDataFromUrlUseCase(this.downloadManager()));
+  static downloadSongUseCase: Lazy<DownloadSongUseCase> = lazyValue(() => new DefaultDownloadSongUseCase(this.downloadManager(), this.songRepository()));
+  
   // Web Frontend Use Cases
   static generateServerQRUseCase: Lazy<GenerateServerQRUseCase> = lazyValue(() => new DefaultGenerateServerQRUseCase(Constants.serverPort()));
   static getSongMediaPathUseCase: Lazy<GetSongMediaPathUseCase> = lazyValue(() => new DefaultGetSongMediaPathUseCase(this.songRepository(), Constants.directoryPath()));

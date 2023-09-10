@@ -31,6 +31,23 @@ export default class SongDataSource implements SongRepository {
     return result;
   }
 
+  async createSongFromDownload(file: string, song: Song): Promise<Song> {
+    await this.initializeClient();
+    const record = new MongooseSongRecord({
+      title: song.title,
+      artist: song.artist,
+      image: song.image,
+      source: file,
+      containsLyrics: song.containsLyrics,
+      containsVoice: song.containsVoice,
+      language: song.language,
+      localizations: song.localizations,
+      openAIUpdated: true
+    });
+    await record.save();
+    return record
+  }
+
   async getSongs(filter?: string, offset?: number, limit?: number): Promise<Song[]> {
     await this.initializeClient();
     // const songs = await MongooseSongRecord.find();
