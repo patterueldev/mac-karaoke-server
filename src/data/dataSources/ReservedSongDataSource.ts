@@ -6,10 +6,8 @@ import ReservedSong from "../../domain/entities/ReservedSong";
 import { MongooseReservedSongRecord } from "../../domain/entities/mongodb/MongooseReservedSongRecord";
 
 export default class ReservedSongDataSource implements ReservedSongRepository{
-  private uri: string;
   private clientBuilder: () => Promise<typeof mongoose>;
-  constructor(uri: string, clientBuilder: () => Promise<typeof mongoose>) {
-    this.uri = uri;
+  constructor(clientBuilder: () => Promise<typeof mongoose>) {
     this.clientBuilder = clientBuilder;
   }
   

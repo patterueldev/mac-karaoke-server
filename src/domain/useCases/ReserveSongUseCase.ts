@@ -21,9 +21,14 @@ export class DefaultReserveSongUseCase implements ReserveSongUseCase {
   }
   async execute(identifier: string) : Promise<Song> {
     const record = await this.songRepository.getSong(identifier);
-    await this.reservedSongRepository.createReservedSong(record);
-    let reserved = await this.reservedSongRepository.getReservedSongs();
-    this.emitterManager.emitToAll(Event.ReservedSongListUpdated, reserved);
+    let reserved = await this.reservedSongRepository.createReservedSong(record);
+    (async () => {
+      let queued = await this.reservedSongRepository.getReservedSongs();
+      this.emitterManager.emitToAll(Event.ReservedSongListUpdated, queued);
+      if (queued.length === 1) {
+        this.emitterManager.emitToPlayer(Event.PlayerClientPlay, reserved);
+      }
+    })();
     return record;
   }
 }

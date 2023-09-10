@@ -8,10 +8,10 @@ export default interface EmitterManager {
   addControllerEmitter(emit: EventEmitter): void;
   removeControllerEmitter(id: String): void;
 
-  emitToAll(event: Event, ...args: any[]): void;
-  emitToPlayer(event: Event, ...args: any[]): void;
-  emitToControllers(event: Event, ...args: any[]): void;
-  emitToController(id: String, event: Event, ...args: any[]): void;
+  emitToAll(event: Event, ...args: any[]): string[];
+  emitToPlayer(event: Event, ...args: any[]): string | undefined;
+  emitToControllers(event: Event, ...args: any[]): string[];
+  emitToController(id: String, event: Event, ...args: any[]): string | undefined;
 }
 
 export class SocketIOManager implements EmitterManager {
@@ -33,7 +33,7 @@ export class SocketIOManager implements EmitterManager {
     let socket = emit as Socket;
     let current = this.playerEmitter as Socket;
     if (this.playerEmitter) {
-      if (socket.id !== current.id) {
+      if (socket.id !== current.id && current.connected) {
         throw new Error("Player client already exists");
       }
     }
@@ -54,24 +54,36 @@ export class SocketIOManager implements EmitterManager {
   }
 
   emitToAll(event: Event, ...args: any[]) {
+    var ids: string[] = [];
     this.getAllEmitters().forEach((emitter) => {
       emitter.emit(event, ...args);
+      let socket = emitter as Socket;
+      ids.push(socket.id);
     });
+    return ids;
   }
   emitToPlayer(event: Event, ...args: any[]) {
     if (this.playerEmitter) {
       this.playerEmitter.emit(event, ...args);
+      let socket = this.playerEmitter as Socket;
+      return socket.id;
     }
   }
   emitToControllers(event: Event, ...args: any[]) {
+    var ids: string[] = [];
     this.controllerEmitters.forEach((emitter) => {
       emitter.emit(event, ...args);
+      let socket = emitter as Socket;
+      ids.push(socket.id);
     });
+    return ids;
   }
   emitToController(id: String, event: Event, ...args: any[]) {
     let emitter = this.controllerEmitters.get(id);
     if (emitter) {
       emitter.emit(event, ...args);
+      let socket = emitter as Socket;
+      return socket.id;
     }
   }
 }

@@ -4,10 +4,8 @@ import Song from "../../domain/entities/Song";
 import { MongooseSongRecord } from "../../domain/entities/mongodb/MongooseSongRecord";
 
 export default class SongDataSource implements SongRepository {
-  private uri: string;
   private clientBuilder: () => Promise<typeof mongoose>;
-  constructor(uri: string, clientBuilder: () => Promise<typeof mongoose>) {
-    this.uri = uri;
+  constructor(clientBuilder: () => Promise<typeof mongoose>) {
     this.clientBuilder = clientBuilder;
   }
   
@@ -19,8 +17,18 @@ export default class SongDataSource implements SongRepository {
     return this.client;
   }
 
-  async createSongs(songs: Song[]): Promise<Song[]> {
-    return [];
+  async createSongsFromFiles(files: string[]): Promise<Song[]> {
+    await this.initializeClient();
+    const songRecords = files.map((file) => {
+      return new MongooseSongRecord({
+        title: file,
+        artist: undefined,
+        image: undefined,
+        source: file,
+      });
+    });
+    const result = await MongooseSongRecord.insertMany(songRecords);
+    return result;
   }
 
   async getSongs(filter?: string, offset?: number, limit?: number): Promise<Song[]> {
@@ -47,5 +55,28 @@ export default class SongDataSource implements SongRepository {
     const record = await MongooseSongRecord.findById(identifier);
     if (!record) return Promise.reject(`Song with id: ${identifier} not found!`);
     return record;
+  }
+
+  async getUnupdatedSongs(limit?: number): Promise<Song[]> {
+    await this.initializeClient();
+    // fetch first 10 songs that are not updated
+    return await MongooseSongRecord.find({ openAIUpdated: false }).limit(limit || 5);
+  }
+
+  async updateMetadataForSongs(songs: Song[]): Promise<Song[]> {
+    var updatedRecords: Song[] = [];
+    for (var i = 0; i < songs.length; i++) {
+      let raw = songs[i];
+      let record = await MongooseSongRecord.findOne({ source: raw.source });
+      if (!record) throw new Error(`Song with source: ${raw.source} not found!`);
+      record.title = raw.title;
+      record.artist = raw.artist;
+      record.openAIUpdated = true;
+      record.language = raw.language;
+      record.localizations = raw.localizations;
+      await record.save();
+      updatedRecords.push(record);
+    }
+    return updatedRecords;
   }
 }

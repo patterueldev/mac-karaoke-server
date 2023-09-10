@@ -26,6 +26,8 @@ export class DefaultOnControllerSongStopUseCase implements OnControllerSongStopU
     // send play command to player
     if (reserved.length > 0) {
       this.emitterManager.emitToPlayer(Event.PlayerClientPlay, reserved[0]);
+    } else {
+      this.emitterManager.emitToPlayer(Event.PlayerClientStop);
     }
   }
 }

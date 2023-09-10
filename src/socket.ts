@@ -1,30 +1,28 @@
-import http from 'http';
-import {Express} from 'express';
-import { Server, Socket } from 'socket.io';
-import { getReservedSongListUseCase, onControllerClientConnectedUseCase, onControllerSongStopUseCase, onPlayerClientConnectedUseCase, onPlayerClientFinishedPlayingUseCase, socketIO, stopCurrentSongUseCase } from './dependencies';
+import { Socket } from 'socket.io';
+import Dependencies from './common/Dependencies';
 import { Event } from './common/Event';
 
-// 
+let socketIO = Dependencies.socketServer();
 socketIO.on('connection', (socket: Socket) => {
   console.log('A client connected: ' + socket.id);
 
   socket.on(Event.PlayerClientConnected, async () => {
     console.log(`Player client ${socket.id} connected`);
-    await onPlayerClientConnectedUseCase.execute(socket);
+    await Dependencies.onPlayerClientConnectedUseCase().execute(socket);
 
     socket.on(Event.PlayerClientFinishedPlaying, async () => {
       console.log('PlayerClientFinishedPlaying from: ' + socket.id)
-      await onPlayerClientFinishedPlayingUseCase.execute();
+      await Dependencies.onPlayerClientFinishedPlayingUseCase().execute();
     });
   });
 
   socket.on(Event.ControllerClientConnected, async () => {
     console.log(`Controller client ${socket.id} connected`);
-    await onControllerClientConnectedUseCase.execute(socket);
+    await Dependencies.onControllerClientConnectedUseCase().execute(socket);
     
     socket.on(Event.ControllerSongStopped, async () => {
       console.log('ControllerSongStopped from: ' + socket.id)
-      await onControllerSongStopUseCase.execute();
+      await Dependencies.onControllerSongStopUseCase().execute();
     });
   });
 });

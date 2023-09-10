@@ -1,5 +1,4 @@
 import qrcode from 'qrcode';
-import { serverPort } from '../../dependencies';
 import os from 'os';
 
 export default interface GenerateServerQRUseCase {
@@ -7,6 +6,11 @@ export default interface GenerateServerQRUseCase {
 }
 
 export class DefaultGenerateServerQRUseCase implements GenerateServerQRUseCase {
+  serverPort: number;
+
+  constructor(serverPort: number) {
+    this.serverPort = serverPort;
+  }
 
   async execute(): Promise<string> {
     const networkInterfaces = os.networkInterfaces();
@@ -26,12 +30,12 @@ export class DefaultGenerateServerQRUseCase implements GenerateServerQRUseCase {
 
     if (lanIpAddress === undefined) { throw new Error('Unable to find LAN IP address'); }
 
-    var port = serverPort;
+    var port = this.serverPort;
     var url = `http://${lanIpAddress}:${port}`;
     var object = new ServerQRJson('baseURL', url, 'Base URL for the Karaoke Server', 'Scan this QR code to connect to the server');
     var json = JSON.stringify(object);
     const qr = await qrcode.toDataURL(json, { errorCorrectionLevel: 'H', scale: 7});
-    return qr;
+    return `<img src="${qr}">`;
   }
 }
 

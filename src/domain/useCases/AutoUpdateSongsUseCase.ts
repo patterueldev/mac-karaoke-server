@@ -1,4 +1,6 @@
+import GenerativeAIRepository from "../../data/repositories/GenerativeAIRepository";
 import KaraokeRepository from "../../data/repositories/KaraokeRepository";
+import SongRepository from "../../data/repositories/SongRepository";
 import Song from "../entities/Song";
 
 export default interface AutoUpdateSongsUseCase {
@@ -6,23 +8,24 @@ export default interface AutoUpdateSongsUseCase {
 }
 
 export class DefaultAutoUpdateSongsUseCase {
-  repository: KaraokeRepository;
-  openAISongPrompt: string;
-
-  constructor(repository: KaraokeRepository, openAISongPrompt: string) {
-    this.repository = repository;
-    this.openAISongPrompt = openAISongPrompt;
+  songRepository: SongRepository;
+  generativeAIRepository: GenerativeAIRepository;
+  
+  constructor(songRepository: SongRepository, generativeAIRepository: GenerativeAIRepository) {
+    this.songRepository = songRepository;
+    this.generativeAIRepository = generativeAIRepository;
   }
 
   async execute(limit: number): Promise<Song[]> {
     // let's loop this until unupdated songs are empty
-    var records = await this.repository.getUnupdatedSongRecords(limit);
+    var records = await this.songRepository.getUnupdatedSongs(limit);
     var songsUpdated: Song[] = [];
     while (records.length > 0) {
       const filenames = records.map((record) => record.source);
-      var songs = await this.repository.autoUpdateMetadataForSongs(filenames, this.openAISongPrompt);
+      let generated = await this.generativeAIRepository.generateMetadataForFiles(filenames);
+      let songs = await this.songRepository.updateMetadataForSongs(generated);
       songsUpdated.push(...songs);
-      records = await this.repository.getUnupdatedSongRecords(limit);
+      records = await this.songRepository.getUnupdatedSongs(limit);
     }
     return songsUpdated;
   }

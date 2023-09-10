@@ -73,7 +73,7 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
         title: file,
         artist: undefined,
         image: undefined,
-        file: file,
+        source: file,
       });
     });
     const result = await MongooseSongRecord.insertMany(songs);
@@ -186,7 +186,6 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
     await this.initializeClient();
     const record = await MongooseReservedSongRecord.findOne({ _id: reserved.identifier });
     if (!record) return;
-    record.currentlyPlaying = true;
     await record.save();
   }
 

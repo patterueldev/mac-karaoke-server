@@ -1,3 +1,4 @@
+import { resolve } from "path";
 import EmitterManager from "../../common/EmitterManager";
 import { Event } from "../../common/Event";
 import ReservedSongRepository from "../../data/repositories/ReservedSongRepository";
@@ -18,7 +19,9 @@ export class DefaultRemoveReservedSongUseCase {
   async execute(id: string): Promise<void> {
     console.log(`Removing reserved song with id: ${id}`);
     await this.reservedSongRepository.deleteReservedSong(id);
-    let reserved = await this.reservedSongRepository.getReservedSongs();
-    this.emitterManager.emitToAll(Event.ReservedSongListUpdated, reserved);
+    (async () => {
+      let reserved = await this.reservedSongRepository.getReservedSongs();
+      this.emitterManager.emitToAll(Event.ReservedSongListUpdated, reserved);
+    })();
   }
 } 
