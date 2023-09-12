@@ -42,9 +42,8 @@ router.post('/songs/download', async (req: Request, res: Response) => {
   await GenericResponse.send(res, async () => {
     let song: Song = req.body as Song;
     console.log('Downloading song: ' + song.title)
-    await Dependencies.downloadSongUseCase().execute(song);
-    return 'Download started!';
-  });
+    return await Dependencies.downloadSongUseCase().execute(song);
+  }, 'Download started!');
 });
 
 router.get('/queue', async (req: Request, res: Response) => {

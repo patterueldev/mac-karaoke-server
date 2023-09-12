@@ -21,12 +21,12 @@ class GenericResponse {
         return new GenericResponse(null, message, status);
     }
 
-    private static async execute(func: () => Promise<any>): Promise<GenericResponse> {
+    private static async execute(func: () => Promise<any>, successMessage: string = 'OK'): Promise<GenericResponse> {
         try {
             var result = await func();
             // check if result is not void
             if (result) {
-                return GenericResponse.success(result);
+                return GenericResponse.success(result, successMessage);
             } else {
                 return GenericResponse.failure('No data');
             }
@@ -35,8 +35,8 @@ class GenericResponse {
         }
     }
 
-    static async send(res: Response, func: () => Promise<any>) {
-        var response = await GenericResponse.execute(func);
+    static async send(res: Response, func: () => Promise<any>, successMessage: string = 'OK') {
+        var response = await GenericResponse.execute(func, successMessage);
         res.status(response.status).send(response);
     }
 }
