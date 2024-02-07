@@ -17,6 +17,6 @@ export class DefaultDownloadSongUseCase implements DownloadSongUseCase {
 
   async execute(song: Song): Promise<Song> {
     let filename = await this.downloadManager.download(song.source);
-    return await this.songRepository.createSongFromDownload(filename, song);
+    return await this.songRepository.createUpdateSongFromDownload(filename, song);
   }
 }

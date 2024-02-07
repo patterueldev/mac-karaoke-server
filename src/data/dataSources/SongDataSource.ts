@@ -31,21 +31,35 @@ export default class SongDataSource implements SongRepository {
     return result;
   }
 
-  async createSongFromDownload(file: string, song: Song): Promise<Song> {
+  async createUpdateSongFromDownload(file: string, song: Song): Promise<Song> {
     await this.initializeClient();
-    const record = new MongooseSongRecord({
-      title: song.title,
-      artist: song.artist,
-      image: song.image,
-      source: file,
-      containsLyrics: song.containsLyrics,
-      containsVoice: song.containsVoice,
-      language: song.language,
-      localizations: song.localizations,
-      openAIUpdated: true
-    });
-    await record.save();
-    return record
+    const existing = await MongooseSongRecord.findOne({ source: file });
+    if (existing) {
+      existing.title = song.title;
+      existing.artist = song.artist;
+      existing.image = song.image;
+      existing.containsLyrics = song.containsLyrics;
+      existing.containsVoice = song.containsVoice;
+      existing.language = song.language;
+      existing.localizations = song.localizations;
+      existing.openAIUpdated = true;
+      await existing.save();
+      return existing;
+    } else {
+      const record = new MongooseSongRecord({
+        title: song.title,
+        artist: song.artist,
+        image: song.image,
+        source: file,
+        containsLyrics: song.containsLyrics,
+        containsVoice: song.containsVoice,
+        language: song.language,
+        localizations: song.localizations,
+        openAIUpdated: true
+      });
+      await record.save();
+      return record
+    }
   }
 
   async getSongs(filter?: string, offset?: number, limit?: number): Promise<Song[]> {
@@ -95,5 +109,10 @@ export default class SongDataSource implements SongRepository {
       updatedRecords.push(record);
     }
     return updatedRecords;
+  }
+
+  async deleteSongRecords(files: string[]): Promise<void> {
+    await this.initializeClient();
+    await MongooseSongRecord.deleteMany({ source: { $in: files } });
   }
 }

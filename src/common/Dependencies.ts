@@ -41,7 +41,15 @@ import DownloadSongUseCase, { DefaultDownloadSongUseCase } from "../domain/useCa
 
 export default class Dependencies {
   // Private & internal dependencies
-  private static clientBuilder: Lazy<() => Promise<typeof mongoose>> = lazyValue(() => lazyValueAsync(async () => await mongoose.connect(Constants.uri())));
+  private static clientBuilder: Lazy<() => Promise<typeof mongoose>> = lazyValue(() => lazyValueAsync(async () => {
+    try {
+      return await mongoose.connect(Constants.uri())
+    } catch (error) {
+      console.error('Error connecting to MongoDB: ');
+      console.error(error);
+      throw error;
+    }
+  }));
   private static emitterManager: Lazy<EmitterManager> = lazyValue(() => new SocketIOManager());
   private static downloadManager: Lazy<DownloadManager> = lazyValue(() => new DefaultDownloadManager(this.ytdl(), this.fs(), Constants.directoryPath()));
   private static fs: Lazy<typeof fs> = lazyValue(() => fs);
@@ -68,7 +76,7 @@ export default class Dependencies {
   static removeReservedSongUseCase: Lazy<RemoveReservedSongUseCase> = lazyValue(() => new DefaultRemoveReservedSongUseCase(this.reservedSongRepository(), this.emitterManager()));
   static stopCurrentSongUseCase: Lazy<StopCurrentSongUseCase> = lazyValue(() => new DefaultStopCurrentSongUseCase(this.reservedSongRepository(), this.emitterManager()));
 
-  static synchronizeRecordsUseCase: Lazy<SynchronizeRecordsUseCase> = lazyValue(() => new DefaultSynchronizeRecordsUseCase(this.fileRepository(), this.songRepository()));
+  static synchronizeRecordsUseCase: Lazy<SynchronizeRecordsUseCase> = lazyValue(() => new DefaultSynchronizeRecordsUseCase(this.fileRepository(), this.songRepository(), this.downloadManager()));
   static autoUpdateSongsUseCase: Lazy<AutoUpdateSongsUseCase> = lazyValue(() => new DefaultAutoUpdateSongsUseCase(this.songRepository(), this.generativeAIRepository()));
   
   static getSongMetadataForUrlUseCase: Lazy<GetSongMetadataForUrlUseCase> = lazyValue(() => new DefaultGetSongMetadataForUrlUseCase(this.streamingSiteRepository(), this.generativeAIRepository(), this.downloadManager()));
