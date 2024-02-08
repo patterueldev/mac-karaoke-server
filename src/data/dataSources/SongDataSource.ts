@@ -115,4 +115,9 @@ export default class SongDataSource implements SongRepository {
     await this.initializeClient();
     await MongooseSongRecord.deleteMany({ source: { $in: files } });
   }
+
+  async deleteSongRecord(identifier: string): Promise<void> {
+    await this.initializeClient();
+    await MongooseSongRecord.deleteOne({ _id: identifier });
+  }
 }

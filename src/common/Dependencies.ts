@@ -38,6 +38,7 @@ import OptimizedSongDataUseCase, { DefaultOptimizedSongDataUseCase } from "../do
 import DownloadManager, { DefaultDownloadManager } from "./DownloadManager";
 import DownloadDataFromUrlUseCase, { DefaultDownloadDataFromUrlUseCase } from "../domain/useCases/DownloadDataFromUrlUseCase";
 import DownloadSongUseCase, { DefaultDownloadSongUseCase } from "../domain/useCases/DownloadSongUseCase";
+import RemoveSongUseCase, { DefaultRemoveSongUseCase } from "../domain/useCases/RemoveSongUseCase";
 
 export default class Dependencies {
   // Private & internal dependencies
@@ -81,6 +82,7 @@ export default class Dependencies {
   
   static getSongMetadataForUrlUseCase: Lazy<GetSongMetadataForUrlUseCase> = lazyValue(() => new DefaultGetSongMetadataForUrlUseCase(this.streamingSiteRepository(), this.generativeAIRepository(), this.downloadManager()));
   static optimizedSongDataUseCase: Lazy<OptimizedSongDataUseCase> = lazyValue(() => new DefaultOptimizedSongDataUseCase(this.songRepository(), this.streamingSiteRepository(), this.generativeAIRepository()));
+  static removeSongUseCase: Lazy<RemoveSongUseCase> = lazyValue(() => new DefaultRemoveSongUseCase(this.songRepository()));
   static downloadDataFromUrlUseCase: Lazy<DownloadDataFromUrlUseCase> = lazyValue(() => new DefaultDownloadDataFromUrlUseCase(this.downloadManager()));
   static downloadSongUseCase: Lazy<DownloadSongUseCase> = lazyValue(() => new DefaultDownloadSongUseCase(this.downloadManager(), this.songRepository()));
   

@@ -30,6 +30,14 @@ router.get('/songs/item/:id/optimized', async (req: Request, res: Response) => {
   });
 });
 
+router.delete('/songs/item/:id/remove', async (req: Request, res: Response) => {
+  var id = req.params.id;
+  await GenericResponse.send(res, async () => {
+    await Dependencies.removeSongUseCase().execute(id);
+    return 'Song removed!';
+  });
+});
+
 router.post('/songs/identify', async (req: Request, res: Response) => {
   await GenericResponse.send(res, async () => {
     let url = req.query.url || req.body.url || undefined;

@@ -8,4 +8,5 @@ export default interface SongRepository {
   getUnupdatedSongs(limit?: number): Promise<Song[]>;
   updateMetadataForSongs(songs: Song[]): Promise<Song[]>;
   deleteSongRecords(files: string[]): Promise<void>;
+  deleteSongRecord(identifier: string): Promise<void>;
 }
