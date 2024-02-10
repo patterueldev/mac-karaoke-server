@@ -60,7 +60,7 @@ export default class Dependencies {
   private static songRepository: Lazy<SongRepository> = lazyValue(() => new SongDataSource(this.clientBuilder()));
   private static reservedSongRepository: Lazy<ReservedSongRepository> = lazyValue(() => new ReservedSongDataSource(this.clientBuilder()));
   private static fileRepository: Lazy<FileRepository> = lazyValue(() => new FileDataSource(Constants.directoryPath()));
-  private static generativeAIRepository: Lazy<GenerativeAIRepository> = lazyValue(() => new GenerativeAIDataSource(this.openAI(), Constants.songFilePrompt(), Constants.videoMetadataPrompt()));
+  private static generativeAIRepository: Lazy<GenerativeAIRepository> = lazyValue(() => new GenerativeAIDataSource(this.openAI(), Constants.songFilePrompt(), Constants.videoMetadataPrompt(), Constants.openAIModel()));
   private static streamingSiteRepository: Lazy<StreamingSiteRepository> = lazyValue(() => new StreamingSiteDataSource(this.ytdl()));
 
   // Public dependencies

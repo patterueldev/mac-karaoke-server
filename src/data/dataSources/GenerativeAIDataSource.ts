@@ -8,16 +8,18 @@ export default class GenerativeAIDataSource implements GenerativeAIRepository {
   private filesMetadataPrompt: string;
   private videoMetadataPrompt: string;
   private openai: OpenAI;
+  private openaiModel: string;
 
-  constructor(openai: OpenAI, filesMetadataPrompt: string, videoMetadataPrompt: string) {
+  constructor(openai: OpenAI, filesMetadataPrompt: string, videoMetadataPrompt: string, openaiModel: string) {
     this.openai = openai;
     this.filesMetadataPrompt = filesMetadataPrompt;
     this.videoMetadataPrompt = videoMetadataPrompt;
+    this.openaiModel = openaiModel;
   }
 
   async generateMetadataForFiles(files: string[]): Promise<Song[]> {
     const body: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
-      model: 'gpt-3.5-turbo',
+      model: this.openaiModel,
       messages: [
         {
           role: 'system',
@@ -63,7 +65,7 @@ export default class GenerativeAIDataSource implements GenerativeAIRepository {
 
   async generateMetadataForData(data: StreamingSiteMetadata, song?: Song): Promise<Song> {
     const body: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
-      model: 'gpt-3.5-turbo',
+      model: this.openaiModel,
       messages: [
         {
           role: 'system',

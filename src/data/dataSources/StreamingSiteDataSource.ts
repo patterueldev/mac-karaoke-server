@@ -22,7 +22,7 @@ export default class StreamingSiteDataSource implements StreamingSiteRepository 
       artist: info.videoDetails.media.artist,
       thumbnail: info.videoDetails.thumbnails[0].url
     }
-    console.log(`metadata: ${metadata}`)
+    console.log(`metadata: ${JSON.stringify(metadata)}`)
     return metadata;
   }
 

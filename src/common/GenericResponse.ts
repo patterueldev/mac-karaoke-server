@@ -4,10 +4,15 @@ class GenericResponse {
     data: any;
     message: string;
     status: number;
+    count: number | undefined;
 
     constructor(data: any, message: string, status: number) {
         this.status = status;
         this.message = message;
+        // check if data is an array
+        if (Array.isArray(data)) {
+            this.count = data.length;
+        }
         this.data = data;
     }
 

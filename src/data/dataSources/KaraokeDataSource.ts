@@ -16,15 +16,17 @@ export default class KaraokeDataSource implements KaraokeRepository, KaraokeDele
   private client: typeof mongoose | undefined;
   private manager: KaraokeManager;
   private openai: OpenAI;
+  private openaiModel: string;
   private socket: Server;
   
   directoryPath: string;
-  constructor(uri: string, directoryPath: string, manager: KaraokeManager, openai: OpenAI, socket: Server) {
+  constructor(uri: string, directoryPath: string, manager: KaraokeManager, openai: OpenAI, openaiModel: string, socket: Server) {
     this.uri = uri;
     this.directoryPath = directoryPath;
     manager.delegate = this;
     this.manager = manager;
     this.openai = openai;
+    this.openaiModel = openaiModel;
     this.socket = socket;
   }
 

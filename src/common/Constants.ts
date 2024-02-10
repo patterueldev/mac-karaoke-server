@@ -26,6 +26,11 @@ export default class Constants {
     return process.env.OPENAI_API_KEY;
   });
 
+  static openAIModel: Lazy<string> = lazyValue(() => {
+    if (!process.env.OPENAI_MODEL) throw new Error('Missing openai model');
+    return process.env.OPENAI_MODEL;
+  });
+
   static serverPort: Lazy<number> = lazyValue(() => {
     if (!process.env.SERVER_PORT) throw new Error('Missing port');
     return parseInt(process.env.SERVER_PORT) || 3000;
